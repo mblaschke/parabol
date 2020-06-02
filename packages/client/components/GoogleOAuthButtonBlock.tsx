@@ -38,11 +38,7 @@ const GoogleOAuthButtonBlock = (props: Props) => {
     GoogleClientManager.openOAuth(atmosphere, mutationProps, history, invitationToken, loginHint)
   }
   return (
-    <React.Fragment>
-      <GoogleOAuthButton label={label} onClick={openOAuth} waiting={submitting} />
-      {error && !submitting && <ErrorMessage>{error.message}</ErrorMessage>}
-      {submitting && <HelpMessage>Continue through the login popup</HelpMessage>}
-    </React.Fragment>
+    <div />
   )
 }
 

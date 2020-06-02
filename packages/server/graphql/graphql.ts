@@ -12,9 +12,11 @@ export interface GQLContext {
   ip: string
   socketId: string
   dataLoader: DataLoaderWorker
+  headerAuthInfo?: {}
 }
 
 export interface InternalContext {
   dataLoader: DataLoaderWorker
   authToken: AuthToken
+  headerAuthInfo?: {}
 }

@@ -10,7 +10,7 @@ import protocolRelativeUrl from './protocolRelativeUrl'
 const s3 = typeof process.env.CDN_BASE_URL === 'string' && process.env.CDN_BASE_URL !== 'key_CDN_BASE_URL' &&
   new aws.S3({
     endpoint: protocolRelativeUrl.parse(process.env.CDN_BASE_URL).hostname,
-    s3BucketEndpoint: true,
+    s3BucketEndpoint: false,
     signatureVersion: 'v4'
   })
 

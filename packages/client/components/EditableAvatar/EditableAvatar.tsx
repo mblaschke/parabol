@@ -69,10 +69,6 @@ const EditableAvatar = (props: Props) => {
   const avatarSize = hasPanel ? size - panelPaddingHorizontal : size
   return (
     <EditableAvatarRoot hasPanel={hasPanel} size={size}>
-      <EditableAvatarEditOverlay hasPanel={hasPanel} onClick={onClick} size={size}>
-        <Icon>edit</Icon>
-        <span>{'EDIT'}</span>
-      </EditableAvatarEditOverlay>
       <EditableAvatarImgBlock hasPanel={hasPanel} size={size}>
         <Avatar picture={picture} size={avatarSize} sansRadius={unstyled} sansShadow={unstyled} />
       </EditableAvatarImgBlock>

@@ -98,10 +98,7 @@ const UserProfile = (props: Props) => {
       <SettingsBlock>
         <Panel label='My Information'>
           <SettingsForm onSubmit={onSubmit}>
-            <div onClick={togglePortal}>
-              <EditableAvatar picture={pictureOrDefault} size={96} />
-            </div>
-            {modalPortal(<UserAvatarInput picture={pictureOrDefault} />)}
+            <EditableAvatar picture={pictureOrDefault} size={96} />
             <InfoBlock>
               <FieldLabel
                 customStyles={{paddingBottom: 8}}

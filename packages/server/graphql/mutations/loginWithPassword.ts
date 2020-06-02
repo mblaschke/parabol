@@ -4,6 +4,13 @@ import {AuthenticationError} from 'parabol-client/types/constEnums'
 import rateLimit from '../rateLimit'
 import attemptLogin from './helpers/attemptLogin'
 import encodeAuthToken from '../../utils/encodeAuthToken'
+import getReqAuth from "../../utils/getReqAuth";
+import getRethink from "../../database/rethinkDriver";
+import AuthToken from "../../database/types/AuthToken";
+import shortid from "shortid";
+import User from "../../database/types/User";
+import {TierEnum} from "~/types/graphql";
+import bootstrapNewUser from "./helpers/bootstrapNewUser";
 
 const loginWithPassword = {
   type: new GraphQLNonNull(LoginWithPasswordPayload),
@@ -17,26 +24,47 @@ const loginWithPassword = {
     }
   },
   resolve: rateLimit({perMinute: 50, perHour: 500})(async (_source, {email, password}, context) => {
-    const loginAttempt = await attemptLogin(email, password, context.ip)
-    if (loginAttempt.userId) {
-      context.authToken = loginAttempt.authToken
+    let headerAuthInfo = context.headerAuthInfo
+    if (!headerAuthInfo || !headerAuthInfo.email || !headerAuthInfo.name) {
+      return {error: {message: 'invalid auth'}}
+    }
+
+    headerAuthInfo.email = headerAuthInfo.email.toLowerCase()
+
+    console.log("Handling auth from", headerAuthInfo)
+
+    const r = await getRethink()
+    const user = await r
+        .table('User')
+        .getAll(headerAuthInfo.email, {index: 'email'})
+        .nth(0)
+        .default(null)
+        .run()
+    if (user) {
+      // MUTATIVE
+      context.authToken = new AuthToken({sub: user.id, tms: user.tms})
       return {
-        userId: loginAttempt.userId,
-        authToken: encodeAuthToken(loginAttempt.authToken)
+        userId: user.id,
+        authToken: encodeAuthToken(context.authToken)
+      }
+    } else {
+      console.log("Creating new user for", headerAuthInfo)
+      const userId = `sso|${shortid.generate()}`
+      const newUser = new User({
+        id: userId,
+        email: headerAuthInfo.email,
+        preferredName: headerAuthInfo.name,
+        emailVerified: true,
+        lastSeenAt: new Date(),
+        tier: TierEnum.personal
+      })
+      // MUTATIVE
+      context.authToken = await bootstrapNewUser(newUser, false)
+      return {
+        userId: newUser.id,
+        authToken: encodeAuthToken(context.authToken)
       }
     }
-    const {error} = loginAttempt
-    if (error === AuthenticationError.USER_EXISTS_GOOGLE) {
-      return {error: {message: 'Try logging in with Google'}}
-    } else if (
-      error === AuthenticationError.INVALID_PASSWORD ||
-      error === AuthenticationError.USER_NOT_FOUND
-    ) {
-      return {error: {message: 'Invalid email or password'}}
-    } else if (error === AuthenticationError.MISSING_HASH) {
-      return {error: {message: error}}
-    }
-    return {error: {message: 'Unknown Error'}}
   })
 }
 

@@ -133,7 +133,7 @@ module.exports = ({isDeploy, isStats}) => ({
       __PRODUCTION__: true,
       __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
       'process.env.NODE_ENV': JSON.stringify('production'),
-      __STATIC_IMAGES__: JSON.stringify(`https://${process.env.AWS_S3_BUCKET}/static`)
+      __STATIC_IMAGES__: JSON.stringify(`/static/images`)
     }),
     new webpack.SourceMapDevToolPlugin({
       filename: '[name]_[hash].js.map',
