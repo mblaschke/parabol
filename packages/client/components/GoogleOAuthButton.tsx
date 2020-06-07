@@ -45,12 +45,7 @@ const Label = styled('div')({
 function GoogleOAuthButton(props: Props) {
   const {onClick, label, waiting} = props
   return (
-    <StyledButton onClick={onClick} waiting={waiting}>
-      <IconBlock waiting={waiting}>
-        <GoogleSVG />
-      </IconBlock>
-      <Label>{label}</Label>
-    </StyledButton>
+    <div />
   )
 }
 

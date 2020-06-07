@@ -93,11 +93,11 @@ const EmailPasswordAuthForm = forwardRef((props: Props, ref: any) => {
   const {history} = useRouter()
   const {fields, onChange, setDirtyField, validateField} = useForm({
     email: {
-      getDefault: () => props.email,
+      getDefault: () => 'placeholder@example.com',
       validate: validateEmail
     },
     password: {
-      getDefault: () => '',
+      getDefault: () => 'placeholder',
       validate: isSignin ? undefined : validatePassword
     }
   })
@@ -189,6 +189,7 @@ const EmailPasswordAuthForm = forwardRef((props: Props, ref: any) => {
       <Form onSubmit={onSubmit}>
         {error && <ErrorAlert message={error.message} />}
         {isSSO && submitting && <HelpMessage>Continue through the login popup</HelpMessage>}
+        <div style={{display: "none"}}>
         <FieldGroup>
           <FieldBlock>
             <EmailInputField
@@ -207,13 +208,11 @@ const EmailPasswordAuthForm = forwardRef((props: Props, ref: any) => {
             />
           </FieldBlock>
         </FieldGroup>
+        </div>
         <Button size='medium' disabled={false} waiting={submitting}>
-          {isSignin ? SIGNIN_LABEL : CREATE_ACCOUNT_BUTTON_LABEL}
+          {SIGNIN_LABEL}
         </Button>
       </Form>
-      <UseSSO onClick={toggleSSO}>{`Sign ${isSignin ? 'in' : 'up'} ${
-        isSSO ? 'without' : 'with'
-      } SSO`}</UseSSO>
     </>
   )
 })

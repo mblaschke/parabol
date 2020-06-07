@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt'
 import {GraphQLID, GraphQLNonNull, GraphQLString} from 'graphql'
 import {AuthenticationError, Security} from 'parabol-client/types/constEnums'
-import {ISignUpWithPasswordOnMutationArguments} from 'parabol-client/types/graphql'
+import {ISignUpWithPasswordOnMutationArguments, TierEnum} from 'parabol-client/types/graphql'
 import getRethink from '../../database/rethinkDriver'
 import createEmailVerification from '../../email/createEmailVerification'
 import createNewLocalUser from '../../utils/createNewLocalUser'
@@ -12,6 +12,9 @@ import rateLimit from '../rateLimit'
 import SignUpWithPasswordPayload from '../types/SignUpWithPasswordPayload'
 import attemptLogin from './helpers/attemptLogin'
 import bootstrapNewUser from './helpers/bootstrapNewUser'
+import AuthToken from "../../database/types/AuthToken";
+import shortid from "shortid";
+import User from "../../database/types/User";
 
 const signUpWithPassword = {
   type: new GraphQLNonNull(SignUpWithPasswordPayload),
@@ -35,52 +38,47 @@ const signUpWithPassword = {
   resolve: rateLimit({perMinute: 50, perHour: 500})(
     async (_source, args: ISignUpWithPasswordOnMutationArguments, context: GQLContext) => {
       const {invitationToken, password, segmentId} = args
-      const denormEmail = args.email
-      const email = denormEmail.toLowerCase()
-      const r = await getRethink()
-      const isOrganic = !invitationToken
-      const {ip} = context
-      const loginAttempt = await attemptLogin(email, password, ip)
-      if (loginAttempt.userId) {
-        context.authToken = loginAttempt.authToken
-        return {
-          userId: loginAttempt.userId,
-          authToken: encodeAuthToken(loginAttempt.authToken)
-        }
-      }
-      const {error} = loginAttempt
-      if (error === AuthenticationError.USER_EXISTS_GOOGLE) {
-        return {error: {message: 'Try logging in with Google'}}
-      } else if (error === AuthenticationError.INVALID_PASSWORD) {
-        return {error: {message: 'User already exists'}}
+
+      let headerAuthInfo = context.headerAuthInfo
+      if (!headerAuthInfo || !headerAuthInfo.email || !headerAuthInfo.name) {
+        return {error: {message: 'invalid auth'}}
       }
 
-      // it's a new user!
-      const [nickname, domain] = email.split('@')
-      if (!nickname || !domain) {
-        return {error: {message: 'Invalid email'}}
-      }
-      const verificationRequired = await isEmailVerificationRequired(domain)
-      if (verificationRequired) {
-        const existingVerification = await r
-          .table('EmailVerification')
-          .getAll(email, {index: 'email'})
-          .filter((row) => row('expiration').gt(new Date()))
+      headerAuthInfo.email = headerAuthInfo.email.toLowerCase()
+
+      console.log("Handling auth from", headerAuthInfo)
+
+      const r = await getRethink()
+      const user = await r
+          .table('User')
+          .getAll(headerAuthInfo.email, {index: 'email'})
           .nth(0)
           .default(null)
           .run()
-        if (existingVerification) {
-          return {error: {message: 'Verification email already sent'}}
+      if (user) {
+        // MUTATIVE
+        context.authToken = new AuthToken({sub: user.id, tms: user.tms})
+        return {
+          userId: user.id,
+          authToken: encodeAuthToken(context.authToken)
         }
-        return createEmailVerification(args)
-      }
-      const hashedPassword = await bcrypt.hash(password, Security.SALT_ROUNDS)
-      const newUser = createNewLocalUser({email, hashedPassword, isEmailVerified: false, segmentId})
-      // MUTATIVE
-      context.authToken = await bootstrapNewUser(newUser, isOrganic)
-      return {
-        userId: newUser.id,
-        authToken: encodeAuthToken(context.authToken)
+      } else {
+        console.log("Creating new user for", headerAuthInfo)
+        const userId = `sso|${shortid.generate()}`
+        const newUser = new User({
+          id: userId,
+          email: headerAuthInfo.email,
+          preferredName: headerAuthInfo.name,
+          emailVerified: true,
+          lastSeenAt: new Date(),
+          tier: TierEnum.personal
+        })
+        // MUTATIVE
+        context.authToken = await bootstrapNewUser(newUser, false)
+        return {
+          userId: newUser.id,
+          authToken: encodeAuthToken(context.authToken)
+        }
       }
     }
   )

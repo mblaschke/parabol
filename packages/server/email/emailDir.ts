@@ -1,1 +1,1 @@
-export default 'https://action-files.parabol.co/static/email/'
+export default '/static/images/email/'

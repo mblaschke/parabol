@@ -25,6 +25,7 @@ const handleGraphQLTrebuchetRequest = async (
 ): TrebuchetServerResult => {
   const opId = data.id!
   const {id: socketId, authToken, ip, subs} = connectionContext
+  let headerAuthInfo = connectionContext.headerAuthInfo ? connectionContext.headerAuthInfo : null
   if (data.type === 'start') {
     const {payload} = data
     if (!payload)
@@ -46,7 +47,8 @@ const handleGraphQLTrebuchetRequest = async (
         variables,
         socketId,
         authToken,
-        ip
+        ip,
+        headerAuthInfo
       })
       if (result.errors) {
         const [firstError] = result.errors

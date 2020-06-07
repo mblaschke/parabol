@@ -7,3 +7,22 @@ services:
       - '8080:8080'
       - '29015:29015'
       - '28015:28015'
+  redis:
+    image: redis
+    ports:
+      - '6379:6379'
+  web:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - '8000:80'
+  node:
+      #image: mblaschke/parabol:5.9.0
+      image: node:13.14-buster
+      command: ["tail", "-F", "/dev/null"]
+      volumes:
+        - ./:/parabol
+      ports:
+        - '3000:3000'
+        - '8082:8082'
