@@ -21,7 +21,7 @@ interface Input {
 }
 
 const letters = 'abcdefghijklmnopqrstuvwxyz'
-const AVATAR_BUCKET = `https://${process.env.AWS_S3_BUCKET}/static/avatars`
+const AVATAR_BUCKET = `/static/images/avatars`
 
 export default class User {
   id: string

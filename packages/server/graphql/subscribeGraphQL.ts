@@ -48,6 +48,7 @@ const documentCache = new DocumentCache()
 const subscribeGraphQL = async (req: SubscribeRequest) => {
   const {connectionContext, variables, docId, query, opId, hideErrors} = req
   const {id: socketId, authToken, socket} = connectionContext
+  let headerAuthInfo = connectionContext.headerAuthInfo ? connectionContext.headerAuthInfo : null
   const document = docId ? await documentCache.fromID(docId) : documentCache.fromString(query!)
   if (!document) {
     if (!hideErrors) {
@@ -55,7 +56,7 @@ const subscribeGraphQL = async (req: SubscribeRequest) => {
     }
     return
   }
-  const context = {socketId, authToken}
+  const context = {socketId, authToken, headerAuthInfo}
   const sourceStream = (await createSourceEventStream(
     publicSchema,
     document,

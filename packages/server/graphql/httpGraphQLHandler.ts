@@ -19,7 +19,8 @@ const httpGraphQLBodyHandler = async (
   body: any,
   authToken: AuthToken,
   connectionId: string | undefined | null,
-  ip: string
+  ip: string,
+  headerAuthInfo?: {}
 ) => {
   const connectionContext = connectionId
     ? sseClients.get(connectionId)
@@ -33,6 +34,7 @@ const httpGraphQLBodyHandler = async (
     res.end('SSE Response not found')
     return
   }
+  connectionContext.headerAuthInfo = headerAuthInfo
   if (connectionId && connectionContext.authToken.sub !== (authToken as AuthToken).sub) {
     const viewerId = getUserId(authToken)
     sendToSentry(new Error('Security: Spoofed SSE connectionId'), {userId: viewerId})
@@ -67,6 +69,10 @@ const httpGraphQLBodyHandler = async (
 const httpGraphQLHandler = uWSAsyncHandler(async (res: HttpResponse, req: HttpRequest) => {
   const contentType = req.getHeader('content-type')
   const connectionId = req.getHeader('x-correlation-id')
+  const headerAuthInfo = {
+    name: req.getHeader('x-user'),
+    email: req.getHeader('x-email')
+  }
   const authToken = getReqAuth(req)
   const ip = uwsGetIP(res, req)
   if (contentType.startsWith('application/json')) {
@@ -75,7 +81,7 @@ const httpGraphQLHandler = uWSAsyncHandler(async (res: HttpResponse, req: HttpRe
       res.writeStatus('422').end()
       return
     }
-    await httpGraphQLBodyHandler(res, body, authToken, connectionId, ip)
+    await httpGraphQLBodyHandler(res, body, authToken, connectionId, ip, headerAuthInfo)
   } else {
     res.writeStatus('415').end()
   }

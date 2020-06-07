@@ -1,7 +1,7 @@
 // Datadog APM, must be first import (disabled for now)
 // import './tracer'
 
-import uws, {SHARED_COMPRESSOR} from 'uWebSockets.js'
+import uws, {HttpRequest, HttpResponse, SHARED_COMPRESSOR} from 'uWebSockets.js'
 import stripeWebhookHandler from './billing/stripeWebhookHandler'
 import createSSR from './createSSR'
 import httpGraphQLHandler from './graphql/httpGraphQLHandler'
@@ -46,5 +46,11 @@ uws
     // today, we don't send folks enough data to worry about backpressure
     close: handleClose
   })
-  .any('/*', createSSR)
+  .any('/*', (res: HttpResponse, req: HttpRequest) => {
+      res.writeHeader("Referrer-Policy", "no-referrer")
+      res.writeHeader("X-Frame-Options", "BLOCK")
+      res.writeHeader("X-XSS-Protection", "1; mode=block")
+      res.writeHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' 'unsafe-inline' data:")
+      return createSSR(res, req)
+  })
   .listen(PORT, listenHandler)

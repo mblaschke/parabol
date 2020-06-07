@@ -15,6 +15,7 @@ export interface SentryOptions {
 const sendToSentry = async (error: Error, options: SentryOptions = {}): void => {
   // if (!PROD) {
   console.error('SEND TO SENTRY', error, options.tags)
+  return
   // }
   const {sampleRate, tags, userId, ip} = options
   if (sampleRate && Math.random() > sampleRate) return

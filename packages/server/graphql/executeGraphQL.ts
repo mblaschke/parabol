@@ -17,6 +17,7 @@ import publicSchema from './rootSchema'
 export interface GQLRequest {
   jobId: string
   authToken: AuthToken
+  headerAuthInfo?: {}
   ip?: string
   socketId?: string
   variables?: {[key: string]: any}
@@ -66,11 +67,12 @@ const executeGraphQL = async <T = ExecutionResultDataDefault>(req: GQLRequest) =
     dataLoaderId,
     rootValue
   } = req
+  let headerAuthInfo = req.headerAuthInfo ? req.headerAuthInfo : null
   // never re-use a dataloader since the things it cached may be old
   const dataLoader = getDataLoader(dataLoaderId)
   dataLoader.share()
   const rateLimiter = getRateLimiter()
-  const contextValue = {ip, authToken, socketId, rateLimiter, dataLoader}
+  const contextValue = {ip, authToken, socketId, rateLimiter, dataLoader, headerAuthInfo}
   const schema = isPrivate ? privateSchema : publicSchema
   const variableValues = variables
   const source = query!

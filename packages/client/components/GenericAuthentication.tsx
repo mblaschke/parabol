@@ -77,26 +77,18 @@ const GenericAuthentication = (props: Props) => {
     <AuthenticationDialog>
       <DialogTitle>{title}</DialogTitle>
       <DialogSubTitle>
-        <span>{actionCopy}</span>
-        <BrandedLink onClick={() => gotoPage(counterActionSlug, location.search)}>
-          {counterAction}
-        </BrandedLink>
+        <span>using SSO</span>
       </DialogSubTitle>
-      <GoogleOAuthButtonBlock isCreate={isCreate} invitationToken={invitationToken} />
-      <HorizontalSeparator margin='1rem 0 0' text='or' />
+      <HorizontalSeparator margin='0 0 0' text='' />
       <EmailPasswordAuthForm
         email=''
         isSignin={!isCreate}
         invitationToken={invitationToken}
         ref={emailRef}
       />
-      {isCreate ? (
-        <AuthPrivacyFooter />
-      ) : (
-        <>
-          <ForgotPasswordLink onClick={onForgot}>{'Forgot your password?'}</ForgotPasswordLink>
-        </>
-      )}
+      <DialogSubTitle>
+        <span style={{"text-align": "right"}}><a href="https://github.com/mblaschke/parabol">Parabol, modified by Markus Blaschke</a></span>
+      </DialogSubTitle>
     </AuthenticationDialog>
   )
 }

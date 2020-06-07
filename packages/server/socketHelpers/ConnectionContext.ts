@@ -25,6 +25,7 @@ class ConnectionContext<T = WebSocket | HttpResponse> {
   subs: ConnectedSubs = {}
   isReady = false
   readyQueue = [] as (() => void)[]
+  headerAuthInfo?: {} | null
   constructor(socket: T, authToken: AuthToken, ip: string) {
     const prefix = isHttpResponse(socket) ? 'sse' : 'ws'
     this.authToken = authToken
