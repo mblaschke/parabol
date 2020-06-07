@@ -1,0 +1,9 @@
+/dist
+/dev
+/build
+/.vscode
+/.github
+/.circleci
+/node_modules
+/Dockerfile
+/.git
