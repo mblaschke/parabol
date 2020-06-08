@@ -17,9 +17,6 @@ const OrgBilling = (props: Props) => {
   const {organization, viewer} = props
   return (
     <div>
-      <OrgBillingUpgrade organization={organization} />
-      <OrgBillingCreditCardInfo organization={organization} />
-      <OrgBillingInvoices viewer={viewer} />
       <OrgBillingDangerZone organization={organization} />
     </div>
   )

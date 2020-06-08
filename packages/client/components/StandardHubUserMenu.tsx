@@ -80,21 +80,6 @@ const StandardHubUserMenu = (props: Props) => {
         }
         onClick={goToOrganizations}
       />
-      {showUpgradeCTA && <MenuItemHR key='HR0' />}
-      {showUpgradeCTA && (
-        <MenuItem
-          label={
-            <MenuItemLabel>
-              <UpgradeIcon>star</UpgradeIcon>
-              <UpgradeCTA>
-                {'Upgrade to '}
-                <b>{TierLabel.PRO}</b>
-              </UpgradeCTA>
-            </MenuItemLabel>
-          }
-          onClick={handleUpgradeClick}
-        />
-      )}
       <MenuItemHR key='HR1' />
       <MenuItem
         label={

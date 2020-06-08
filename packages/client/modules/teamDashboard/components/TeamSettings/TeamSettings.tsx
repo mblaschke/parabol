@@ -54,16 +54,6 @@ const TeamSettings = (props: Props) => {
   return (
     <TeamSettingsLayout>
       <PanelsLayout>
-        {tier === TierEnum.personal && (
-          <Panel>
-            <StyledRow>
-              <div>{'This team is currently on a personal plan.'}</div>
-              <PrimaryButton onClick={() => history.push(`/me/organizations/${orgId}`)}>
-                {`Upgrade Team to ${TierLabel.PRO}`}
-              </PrimaryButton>
-            </StyledRow>
-          </Panel>
-        )}
         {viewerIsLead && (
           <Panel label='Danger Zone'>
             <PanelRow>

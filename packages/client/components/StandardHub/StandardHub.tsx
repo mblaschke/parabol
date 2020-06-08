@@ -116,17 +116,6 @@ const StandardHub = (props: Props) => {
           <Email>{email}</Email>
         </NameAndEmail>
       </User>
-      {tier === TierEnum.personal ? (
-        <Upgrade onClick={handleUpgradeClick}>
-          <Icon>verified_user</Icon>
-          <UpgradeCTA>
-            {'Upgrade to '}
-            <b>{TierLabel.PRO}</b>
-          </UpgradeCTA>
-        </Upgrade>
-      ) : (
-        <Tier tier={tier as TierEnum} />
-      )}
     </StandardHubRoot>
   )
 }

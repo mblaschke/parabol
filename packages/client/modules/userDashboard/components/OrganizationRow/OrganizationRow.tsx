@@ -130,11 +130,6 @@ const OrganizationRow = (props: Props) => {
           </StyledRowInfoCopy>
         </StyledRowInfo>
         <RowActions>
-          {showUpgradeCTA && (
-            <StyledFlatButton onClick={onRowClick} palette={'blue'}>
-              {upgradeCTALabel}
-            </StyledFlatButton>
-          )}
           <StyledButton
             onClick={onRowClick}
             onMouseEnter={openTooltip}
