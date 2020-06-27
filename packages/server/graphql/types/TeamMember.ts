@@ -51,7 +51,30 @@ const TeamMember = new GraphQLObjectType<any, GQLContext, any>({
     },
     picture: {
       type: new GraphQLNonNull(GraphQLURLType),
-      description: 'url of user’s profile picture'
+      description: 'url of user’s profile picture',
+      resolve(obj) {
+        // better avatar
+        const letters = 'abcdefghijklmnopqrstuvwxyz';
+        let preferredName = obj.preferredName || obj.name;
+        let _avatarName = preferredName.replace(".", " ").split(" ").map((n)=>n[0]).join("");
+        _avatarName = _avatarName
+            .toLowerCase()
+            .split('')
+            .filter((letter) => letters.includes(letter))
+            .slice(0, 2)
+            .join('') || 'pa';
+        if (_avatarName.length != 2) {
+          _avatarName =
+              preferredName
+                  .toLowerCase()
+                  .split('')
+                  .filter((letter) => letters.includes(letter))
+                  .slice(0, 2)
+                  .join('') || 'pa';
+        }
+        let avatarPicture = _avatarName || 'pa';
+        return "/static/images/avatars/"+avatarPicture+".png";
+      }
     },
     /* Ephemeral meeting state */
     checkInOrder: {
