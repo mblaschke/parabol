@@ -208,6 +208,10 @@ class ExportToCSV extends Component<Props> {
     document.body.removeChild(link)
   }
 
+  printAsPdf() {
+    window.print();
+  }
+
   render() {
     const {emailCSVUrl, referrer} = this.props
     return (
@@ -223,6 +227,21 @@ class ExportToCSV extends Component<Props> {
               />
               <span style={labelStyle}>{label}</span>
             </AnchorIfEmail>
+            &nbsp;|&nbsp;
+            <a href="#" onClick={this.printAsPdf} title="Print as PDF">
+              <img
+                  crossOrigin=''
+                  alt={label}
+                  src={`${emailDir}print_pdf.png`}
+                  style={imageStyle}
+              />
+              <span style={labelStyle}>Print as PDF</span>
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td align='center' style={iconLinkLabel} width='100%'>
+
           </td>
         </tr>
         <EmailBorderBottom />
